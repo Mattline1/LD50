@@ -16,7 +16,7 @@ namespace LD50.Core
         Game = 4
     }
 
-    class AInput : IScript
+    public class AInput : IScript
     {
         private UInput handler = null;
 

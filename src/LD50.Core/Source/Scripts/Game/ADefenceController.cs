@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using LD50.XMLSchema;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -11,8 +12,10 @@ namespace LD50.Core
 {
     class ADefenceController : IScript
     {
+        private readonly ACanvas canvas;
         private readonly AThreatField threatfield;
         private readonly AInput input;
+        private readonly UAudio audio;
         private readonly UView3D view3D;
         private readonly UStatistics statistics;
 
@@ -22,17 +25,20 @@ namespace LD50.Core
         private List<int> orders                = new List<int>();
         private List<double> orderTimeStamps    = new List<double>();
 
-        public ADefenceController(ContentManager content, AThreatField threatfield, AInput input, UView3D view3D, UStatistics statistics)
+        public ADefenceController(ContentManager content, GraphicsDevice graphics, AThreatField threatfield, AInput input, UAudio audio, UView3D view3D, UStatistics statistics)
         {
             this.threatfield = threatfield;
             this.input = input;
+            this.audio = audio;
             this.view3D = view3D;
             this.statistics = statistics;
 
-            AMines  mines       = new AMines(content, threatfield);
-            AMortar mortars     = new AMortar(content, threatfield, 3, 3);
-            AMortar nukes       = new AMortar(content, threatfield, 10, 10);
-            AFactory factories  = new AFactory(content, threatfield, 1);
+            canvas = new ACanvas(content, graphics, input, content.Load<FCanvas>("GUI"));
+
+            AMines  mines       = new AMines(content, threatfield, audio);
+            AMortar mortars     = new AMortar(content, threatfield, audio, 2, 3);
+            AMortar nukes       = new AMortar(content, threatfield, audio, 6, 20);
+            AFactory factories  = new AFactory(content, threatfield, audio, 1);
 
             AddDefenceType(factories, 1);
             AddDefenceType(mines, 10);
@@ -40,10 +46,22 @@ namespace LD50.Core
             AddDefenceType(nukes, 0);
 
             input.BindAction("primary.OnPressed", OnPressed);
-            input.BindAction("1.OnPressed", (gt) => OnChangeType(0, gt));
-            input.BindAction("2.OnPressed", (gt) => OnChangeType(1, gt));
-            input.BindAction("3.OnPressed", (gt) => OnChangeType(2, gt));
-            input.BindAction("4.OnPressed", (gt) => OnChangeType(3, gt));
+            input.BindAction("1.OnPressed", (gt) => OnChangeAndOrderType(0, gt));
+            input.BindAction("2.OnPressed", (gt) => OnChangeAndOrderType(1, gt));
+            input.BindAction("3.OnPressed", (gt) => OnChangeAndOrderType(2, gt));
+            input.BindAction("4.OnPressed", (gt) => OnChangeAndOrderType(3, gt));
+
+            canvas.BindAction("button1.OnClick", (gt) => OnChangeType(0, gt));
+            canvas.BindAction("button2.OnClick", (gt) => OnOrderType(0, gt));
+
+            canvas.BindAction("button3.OnClick", (gt) => OnChangeType(1, gt));
+            canvas.BindAction("button4.OnClick", (gt) => OnOrderType(1, gt));
+
+            canvas.BindAction("button5.OnClick", (gt) => OnChangeType(2, gt));
+            canvas.BindAction("button6.OnClick", (gt) => OnOrderType(2, gt));
+
+            canvas.BindAction("button7.OnClick", (gt) => OnChangeType(3, gt));
+            canvas.BindAction("button8.OnClick", (gt) => OnOrderType(3, gt));
         }
 
         private void AddDefence(Vector3 destination, GameTime gameTime)
@@ -77,16 +95,32 @@ namespace LD50.Core
 
         private void OnChangeType(int index, GameTime gameTime)
         {
+            audio.PlaySingle("chirp");
+            activeDefence = index;
+        }
+
+        private void OnChangeAndOrderType(int index, GameTime gameTime)
+        {
             if (activeDefence == index)
             {
-                if (AFactory.Resource > defences[activeDefence].Cost)
-                {
-                    AFactory.Resource -= defences[activeDefence].Cost;
-                    orders[activeDefence]++;
-                    orderTimeStamps[activeDefence] = gameTime.TotalGameTime.TotalSeconds;
-                }
+                OnOrderType(activeDefence, gameTime);
             }
-            activeDefence = index;
+            OnChangeType(index, gameTime);
+        }
+
+        private void OnOrderType(int index, GameTime gameTime)
+        {
+            if (AFactory.Resource > defences[index].Cost)
+            {
+                audio.PlaySingle("ordered");
+                AFactory.Resource -= defences[index].Cost;
+                orders[index]++;
+                orderTimeStamps[index] = gameTime.TotalGameTime.TotalSeconds;
+            }
+            else
+            {
+                audio.PlaySingle("chirp");
+            }
         }
 
         public void SetGlobalScale(float globalScale)
@@ -113,6 +147,9 @@ namespace LD50.Core
             {
                 defence.Draw2D(view3D, spriteBatch, gameTime);
             }
+
+            canvas.Draw2D(view3D, spriteBatch, gameTime);
+
             return 1;
         }
 
@@ -121,6 +158,12 @@ namespace LD50.Core
             foreach (var defence in defences)
             {
                 defence.Update(gameTime);
+            }
+
+            //HACK for game jam, there should be a better way to edit widgets
+            for (int i = 0; i < defences.Count; i++)
+            {
+                canvas.widgets.texts[8 + i] = string.Format("> {0} \n\n> {1} ", stockpiles[i], orders[i]);
             }
 
             for (int i = 0; i < orders.Count; i++)
@@ -132,9 +175,12 @@ namespace LD50.Core
                         orders[i]--;
                         stockpiles[i]++;
                         orderTimeStamps[i] = gameTime.TotalGameTime.TotalSeconds;
+                        audio.PlaySingle("gain");
                     }
                 }
             }
+
+            canvas.Update(gameTime);
 
             statistics.Set("Resource", ((int)AFactory.Resource).ToString());
             return 1;

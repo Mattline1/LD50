@@ -7,9 +7,9 @@ namespace LD50.Core
     {
         public static double Resource = 0;
 
-        public AFactory(ContentManager content, AThreatField threatfield, int delay) : base(content, threatfield, delay)
+        public AFactory(ContentManager content, AThreatField threatfield, UAudio audio, int delay) : base(content, threatfield, audio, delay)
         {
-            defaultAnimation = "Mine";
+            defaultAnimation = "Factory";
             defaultSpriteSize = 1.0f;
         }
 

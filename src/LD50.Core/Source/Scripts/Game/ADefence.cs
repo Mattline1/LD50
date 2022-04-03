@@ -9,7 +9,7 @@ namespace LD50.Core
     public class ADefence : IScript
     {
         protected readonly AThreatField threatfield;
-
+        private readonly UAudio audio;
         protected ATransform2D    transforms;
         protected ASprites        sprites;
         protected Texture2D       textureAtlas;
@@ -24,16 +24,20 @@ namespace LD50.Core
         public double Cost = 1.0f;
         public double OrderTime = 3.0f;
 
-        public ADefence(ContentManager content, AThreatField threatfield, double delayTime)
+        public bool bShowUI;
+
+        public ADefence(ContentManager content, AThreatField threatfield, UAudio audio, double delayTime)
         {
             this.delayTime = delayTime;
             this.threatfield = threatfield;
+            this.audio = audio;
             transforms  = new ATransform2D();
             sprites     = new ASprites(content, transforms);
 
             textureAtlas = content.Load<Texture2D>("DefencesAtlas");
             sprites.AddSpriteAnimation("Mine", 16, 16, textureAtlas, new Rectangle(0, 0, 32, 32), true);
             sprites.AddSpriteAnimation("Mortar", 32, 8, textureAtlas, new Rectangle(0, 32, 64, 64), true, 10);
+            sprites.AddSpriteAnimation("Factory", 16, 16, textureAtlas, new Rectangle(0, 288, 32, 32), true, 6);
         }
 
         public void AddDefence(Vector3 destination, GameTime gameTime)
@@ -53,6 +57,7 @@ namespace LD50.Core
             FIntVector2 gridcoords = GetGridCoords(destinations[i]);
             RemoveDefence(i);
             threatfield.SetMagnitudeInRadius(gridcoords.x, gridcoords.y, radius, 0);
+            audio.PlaySingle("explosion");
             return true;
         }
 

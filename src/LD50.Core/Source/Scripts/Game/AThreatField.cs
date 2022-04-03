@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -30,7 +31,7 @@ namespace LD50.Core
     {
         public List<int> x              = new List<int>();
         public List<int> y              = new List<int>();
-        public List<int> magnitude      = new List<int>();
+        public List<float> magnitude    = new List<float>();
         public List<bool> bIsSource     = new List<bool>();
         public List<bool> bIsResource   = new List<bool>();
 
@@ -56,20 +57,28 @@ namespace LD50.Core
 
         private int width;
         private int height;
+        private readonly UAudio audio;
+        private SoundEffectInstance creepnoise;
+
         private Random rnd = new Random();
 
-        private int creepVirality  = 1;
-        private int creepDiffusion = 200;
+        private float creepVirality  = 200;
+        private float creepDiffusion = 200;
 
-        public AThreatField(int width, int height, ContentManager content)
+        public AThreatField(int width, int height, ContentManager content, UAudio audio)
         {
             this.width  = width;
             this.height = height;
+            this.audio = audio;
             transforms  = new ATransform2D();
             sprites     = new ASprites(content, transforms);
 
             textureAtlas = content.Load<Texture2D>("GreyGrid");
             sprites.AddSpriteAnimation("Square", 16, 16, textureAtlas, new Rectangle(0, 0, 32, 32), true);
+
+            creepnoise = audio.Play("creep");
+            creepnoise.IsLooped = true;
+            creepnoise.Volume = 0.0f;
 
             for (int h = 0; h < height; h++)
             {
@@ -133,12 +142,12 @@ namespace LD50.Core
             return false;
         }
 
-        public int GetMagnitude(FIntVector2 coords)
+        public float GetMagnitude(FIntVector2 coords)
         {
             return GetMagnitude(coords.x, coords.y);
         }
 
-        public int GetMagnitude(int x, int y)
+        public float GetMagnitude(int x, int y)
         {
             int i = Get1DIndex(x, y);
             if (IsValidIndex(i))
@@ -182,41 +191,43 @@ namespace LD50.Core
             sprites.globalScale = globalScale;
         }
 
-        public void SetMagnitude(int x, int y, int magnitude)
+        public void SetMagnitude(int x, int y, float magnitude)
         {
             int i = Get1DIndex(x, y);
-            if (IsValidIndex(i))
+            if (IsValidIndex(i) && !fieldA.bIsSource[i])
             {
                 fieldA.magnitude[i] = magnitude;
                 fieldB.magnitude[i] = magnitude;
             }
         }
 
-        public void SetMagnitudeInRadius(int x, int y, int radius, int magnitude)
+        public void SetMagnitudeInRadius(int x, int y, int radius, float magnitude)
         {
             for (int xi = -radius; xi <= radius; xi++)
             {
+                int tx = x + xi;
+                if (tx < 0 || tx >= width) { continue; }
+
                 for (int yi = -radius; yi <= radius; yi++)
                 {
-                    int i = Get1DIndex(x + xi, y + yi);
+                    int ty = y + yi;
+                    if (ty < 0 || ty >= height) { continue; }
 
-                    if (IsValidIndex(i))
-                    {
-                        fieldA.magnitude[i] = magnitude;
-                        fieldB.magnitude[i] = magnitude;
-                    }
+                    SetMagnitude(tx, y + yi, magnitude);
                 }
             }
         }
 
-        public void Step()
+        public void Step(GameTime gametime)
         {
             AFieldValues readField = bUsingFieldA ? fieldA : fieldB;
             AFieldValues writeField = bUsingFieldA ? fieldB : fieldA;
 
+            int infested = 0;
+
             for (int i = 0; i < fieldA.x.Count; i++)
             {
-                int m = readField.magnitude[i];
+                float m = readField.magnitude[i];
 
                 if (m > creepDiffusion)
                 {
@@ -233,8 +244,13 @@ namespace LD50.Core
 
                     writeField.x[cti]           = Math.Clamp(readField.x[cti] + x, -1, 1);
                     writeField.y[cti]           = Math.Clamp(readField.y[cti] + y, -1, 1);
-                    writeField.magnitude[cti]   = Math.Min(readField.magnitude[cti] + creepVirality, 255);
+                    writeField.magnitude[cti]   = Math.Min(
+                        readField.magnitude[cti] + (creepVirality * (float)gametime.ElapsedGameTime.TotalSeconds),
+                        255.0f
+                        );
                     writeField.bIsResource[i]   = false;
+
+                    infested++;
                  }
 
                 sprites.SetColor(i, Color.Lerp(Color.White, Color.Red, m / 255.0f));
@@ -244,12 +260,15 @@ namespace LD50.Core
                     sprites.SetColor(i, Color.MediumPurple);
                 }
             }
+
+            float factor = (float)infested / (float)(width * height);
+            creepnoise.Volume = factor * factor * factor;
             bUsingFieldA = !bUsingFieldA;
         }
 
         public int Update(GameTime gameTime)
         {
-            Step();
+            Step(gameTime);
             return 1;
         }
     }

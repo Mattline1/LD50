@@ -16,6 +16,7 @@ namespace LD50.Core
         private List<IScript> scripts = new List<IScript>();
 
         // Services
+        private UAudio audio = null;
         private UInput input = null;
         private USettings settings = null;
         private UStatistics statistics = null;
@@ -58,7 +59,7 @@ namespace LD50.Core
             view3D.viewport.Width  = preferredWidth;
             view3D.viewport.Height = preferredHeight;
 
-            view3D.position = new Vector3(grid / 2 - 0.5f, grid * 1.3f , grid / 2 - 0.5f);
+            view3D.position = new Vector3(grid / 2 - 0.5f, grid * 1.3f , grid / 2 + 0.5f);
             view3D.rotation = new Vector3(0.0f, MathHelper.ToRadians(-90), 0.0f);
             view3D.window   = new Vector2(4.0f, 2.4f);
             view3D.BuildMatrices();
@@ -75,15 +76,19 @@ namespace LD50.Core
             rasterizerUIState   = new RasterizerState() { ScissorTestEnable = true };
 
             // services
+            audio               = new UAudio(Content);
             statistics          = new UStatistics();
             input               = new UInput(statistics);
             settings            = new USettings();
             view3D              = new UView3D(GraphicsDevice.Viewport);
 
+            //music 
+            audio.Play("music").IsLooped = true;
+
             //scripts
-            AThreatField threatField = new AThreatField(grid, grid, Content);
+            AThreatField threatField = new AThreatField(grid, grid, Content, audio);
             AInput inputScript = new AInput(input);
-            ADefenceController defences = new ADefenceController(Content, threatField, inputScript, view3D, statistics);
+            ADefenceController defences = new ADefenceController(Content, GraphicsDevice, threatField, inputScript, audio, view3D, statistics);
 
             scripts.Add(threatField);
             scripts.Add(inputScript);
@@ -106,7 +111,7 @@ namespace LD50.Core
 
         protected override void LoadContent()
         {
-            font = Content.Load<SpriteFont>("Arial");
+            font = Content.Load<SpriteFont>("RoentgenNbp");
         }
 
         protected override void Update(GameTime gameTime)
@@ -139,6 +144,10 @@ namespace LD50.Core
             {
                 script.Draw2D(view3D, spriteBatch, gameTime);
             }
+
+            //HACK present important info
+            //spriteBatch.DrawString(font, "Resources: " + (1.0 / gameTime.ElapsedGameTime.TotalSeconds).ToString("0"), new Vector2(10, 10), Color.BlanchedAlmond);
+
             spriteBatch.End();
             drawStopwatch.Stop();
 
@@ -151,6 +160,7 @@ namespace LD50.Core
         private void DrawStats(GameTime gameTime)
         {
             spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, rasterizerUIState);
+
             if (drawStats)
             {
                 spriteBatch.DrawString(font, "FPS:   " + (1.0 / gameTime.ElapsedGameTime.TotalSeconds).ToString("0"), new Vector2(10, 10), Color.Black);

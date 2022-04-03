@@ -10,6 +10,7 @@
 
 #-------------------------------- References --------------------------------#
 
+/reference:..\..\LD50.XMLSchema\bin\Release\netcoreapp3.1\LD50.XMLSchema.dll
 
 #---------------------------------- Content ---------------------------------#
 
@@ -19,6 +20,18 @@
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
 /build:Arial.spritefont
+
+#begin blip.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:blip.wav
+
+#begin chirp.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:chirp.wav
 
 #begin ColorGrid.png
 /importer:TextureImporter
@@ -32,6 +45,12 @@
 /processorParam:TextureFormat=Color
 /build:ColorGrid.png
 
+#begin creep.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:creep.wav
+
 #begin DefencesAtlas.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -44,6 +63,25 @@
 /processorParam:TextureFormat=Color
 /build:DefencesAtlas.png
 
+#begin explosion.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:explosion.wav
+
+#begin File.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:File.spritefont;RoentgenNbp.spritefont
+
+#begin gain.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:gain.wav
+
 #begin GreyGrid.jpg
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -55,4 +93,39 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:GreyGrid.jpg
+
+#begin GUI.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:GUI.xml
+
+#begin GUITexture.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:GUITexture.png
+
+#begin music.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:music.wav
+
+#begin ordered.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:ordered.wav
+
+#begin Static.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Static.wav
 

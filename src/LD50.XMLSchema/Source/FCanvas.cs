@@ -1,4 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace LD50.XMLSchema
 {
@@ -23,7 +27,7 @@ namespace LD50.XMLSchema
         text
     }
 
-    public struct FCanvas : ISerialisedData
+    public class FCanvas : ISerialisedData
     {
         public string           ID;
         public Rectangle        root;

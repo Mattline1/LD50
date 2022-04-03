@@ -8,11 +8,12 @@ namespace LD50.Core
 {
     public delegate void WidgetDelegate(GameTime gameTime);
 
-    class ACanvas : IScript
+    public class ACanvas : IScript
     {
         private SpriteFont bodyFont;
 
-        private FCanvas widgets;
+        //HACK for game jam, there should be a better way to edit widgets
+        public FCanvas widgets;
 
         private Dictionary<string, Texture2D> textures = new Dictionary<string, Texture2D>();
 
@@ -30,7 +31,7 @@ namespace LD50.Core
             graphics    = graphicsDevice;
             inputScript = input;
             widgets     = widgetStruct;
-            bodyFont    = Content.Load<SpriteFont>("Arial");
+            bodyFont    = Content.Load<SpriteFont>("RoentgenNbp");
 
             foreach (string texture in widgets.textures)
             {
@@ -239,15 +240,6 @@ namespace LD50.Core
                         break;
                     case EWidgetType.button:
                         string key = widgets.IDs[i] + suffix;
-                        if (bindings.ContainsKey(key))
-                        {
-                            foreach (var binding in bindings[key])
-                            {
-                                binding.Invoke(gameTime);
-                            }
-                        }
-
-                        key = widgets.IDs[i] + suffix;
                         if (bindings.ContainsKey(key))
                         {
                             foreach (var binding in bindings[key])

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace LD50.Core
 {
-    class UAudio : IService
+    public class UAudio : IService
     {
         private Dictionary<string, SoundEffect> soundTable = new Dictionary<string, SoundEffect>();
         private ContentManager _contentManager;
@@ -17,7 +17,7 @@ namespace LD50.Core
 
         public void Cache(string sound)
         {
-            SoundEffect soundEffect = _contentManager.Load<SoundEffect>("sound");
+            SoundEffect soundEffect = _contentManager.Load<SoundEffect>(sound);
             soundTable.TryAdd(sound, soundEffect);
         }
 
@@ -25,10 +25,15 @@ namespace LD50.Core
         {
             if (soundTable.ContainsKey(sound) == false)
             {
-                _contentManager.Load<SoundEffect>("sound");
+                Cache(sound);
             }
 
-            return soundTable[sound];
+            if (soundTable.ContainsKey(sound))
+            {
+                return soundTable[sound];
+            }
+
+            return null;
         }
 
         public void PlaySingle(string sound)
