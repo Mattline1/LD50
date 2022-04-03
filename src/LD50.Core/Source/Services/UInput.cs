@@ -105,10 +105,13 @@ namespace LD50.Core
             keyBindings.Add(new TBinding(Keys.E, "E"));
 
 
-            keyBindings.Add(new TBinding(Keys.NumPad1, "1"));
-            keyBindings.Add(new TBinding(Keys.NumPad2, "2"));
-            keyBindings.Add(new TBinding(Keys.NumPad3, "3"));
-            keyBindings.Add(new TBinding(Keys.NumPad4, "4"));
+            keyBindings.Add(new TBinding(Keys.D1, "1"));
+            keyBindings.Add(new TBinding(Keys.D2, "2"));
+            keyBindings.Add(new TBinding(Keys.D3, "3"));
+            keyBindings.Add(new TBinding(Keys.D4, "4"));
+            keyBindings.Add(new TBinding(Keys.D5, "5"));
+            keyBindings.Add(new TBinding(Keys.D6, "6"));
+            keyBindings.Add(new TBinding(Keys.D7, "7"));
         }
 
         public TActionHandle BindAction(string action, ButtonDelegate callback)

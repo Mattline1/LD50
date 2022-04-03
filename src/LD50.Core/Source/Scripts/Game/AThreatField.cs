@@ -32,13 +32,15 @@ namespace LD50.Core
         public List<int> y              = new List<int>();
         public List<int> magnitude      = new List<int>();
         public List<bool> bIsSource     = new List<bool>();
+        public List<bool> bIsResource   = new List<bool>();
 
-        public void Add(Random rnd, bool _bIsSource = false)
+        public void Add(Random rnd, bool _bIsSource = false, bool _bIsResource = false)
         {
             x.Add(rnd.Next(-1, 2));
             y.Add(rnd.Next(-1, 2));
             magnitude.Add(_bIsSource ? 255 : 0);
             bIsSource.Add(_bIsSource);
+            bIsResource.Add(_bIsResource);
         }
     }
 
@@ -55,6 +57,9 @@ namespace LD50.Core
         private int width;
         private int height;
         private Random rnd = new Random();
+
+        private int creepVirality  = 1;
+        private int creepDiffusion = 200;
 
         public AThreatField(int width, int height, ContentManager content)
         {
@@ -74,9 +79,10 @@ namespace LD50.Core
                     int i = sprites.AddSprite();
                     sprites.Play(i, "Square", rnd.Next(0, 16), true);
 
-                    bool source = rnd.Next(0, 30) == 5;
-                    fieldA.Add(rnd, source);
-                    fieldB.Add(rnd, source);
+                    bool source = (MathF.Abs(width / 2 - w) > 10 || MathF.Abs(height / 2 - h) > 10) && rnd.Next(0, 30) == 5;
+                    bool resource = rnd.Next(0, 100) == 5;
+                    fieldA.Add(rnd, source, resource);
+                    fieldB.Add(rnd, source, resource);
                 }
             }
         }
@@ -103,6 +109,28 @@ namespace LD50.Core
             int trueX = (i % width) + x;
             int trueI = Get1DIndex(trueX, trueY);
             return Math.Clamp(trueI, 0, range - 1);
+        }
+
+        public bool GetIsResource(FIntVector2 coords)
+        {
+            return GetIsResource(coords.x, coords.y);
+        }
+
+        public bool GetIsResource(int x, int y)
+        {
+            int i = Get1DIndex(x, y);
+            if (IsValidIndex(i))
+            {
+                if (bUsingFieldA)
+                {
+                    return fieldA.bIsResource[i];
+                }
+                else
+                {
+                    return fieldB.bIsResource[i];
+                }
+            }
+            return false;
         }
 
         public int GetMagnitude(FIntVector2 coords)
@@ -190,7 +218,7 @@ namespace LD50.Core
             {
                 int m = readField.magnitude[i];
 
-                if (m > 200)
+                if (m > creepDiffusion)
                 {
                     int x = readField.x[i];
                     int y = readField.y[i];
@@ -205,12 +233,17 @@ namespace LD50.Core
 
                     writeField.x[cti]           = Math.Clamp(readField.x[cti] + x, -1, 1);
                     writeField.y[cti]           = Math.Clamp(readField.y[cti] + y, -1, 1);
-                    writeField.magnitude[cti]   = Math.Min(readField.magnitude[cti] + 5, 255);
-                }
+                    writeField.magnitude[cti]   = Math.Min(readField.magnitude[cti] + creepVirality, 255);
+                    writeField.bIsResource[i]   = false;
+                 }
 
                 sprites.SetColor(i, Color.Lerp(Color.White, Color.Red, m / 255.0f));
-            }
 
+                if (readField.bIsResource[i])
+                {
+                    sprites.SetColor(i, Color.MediumPurple);
+                }
+            }
             bUsingFieldA = !bUsingFieldA;
         }
 

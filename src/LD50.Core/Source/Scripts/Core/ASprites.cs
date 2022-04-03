@@ -12,14 +12,16 @@ namespace LD50.Core
         public int width;
         public bool loops;
         public Rectangle source;
+        public float frameRate;
 
-        public AnimationData(int texID, int frames, int width, bool loops, Rectangle source)
+        public AnimationData(int texID, int frames, float frameRate, int width, bool loops, Rectangle source)
         {
             this.texID = texID;
             this.frames = frames;
             this.width = width;
             this.loops = loops;
             this.source = source;
+            this.frameRate = frameRate;
         }
     }
 
@@ -42,11 +44,12 @@ namespace LD50.Core
         private List<int>  width        = new List<int>();
         private List<bool> loop         = new List<bool>();
         private List<float> elapsedTime = new List<float>();
+        private List<float> frameRate   = new List<float>();
         private List<Rectangle> sources = new List<Rectangle>();
         private List<Color> colors      = new List<Color>();
         private List<float> scales      = new List<float>();
 
-        public float FrameRate => 15.0f;
+        public float FrameRate => 16.0f;
 
         // flags
         public bool bViewAlignedSprites = false;
@@ -72,6 +75,7 @@ namespace LD50.Core
             width.Add(0);
             loop.Add(false);
             elapsedTime.Add(0);
+            frameRate.Add(FrameRate);
             sources.Add(new Rectangle());
             colors.Add(Color.White);
             scales.Add(scale);
@@ -86,7 +90,7 @@ namespace LD50.Core
             return index;
         }
 
-        public void AddSpriteAnimation(string name, int frames, int width, Texture2D texture, Rectangle source, bool shouldLoop = false)
+        public void AddSpriteAnimation(string name, int frames, int width, Texture2D texture, Rectangle source, bool shouldLoop = false, float frameRate = -1.0f)
         {
             int tex = textures.FindIndex(obj => obj == texture);
             if (tex == -1)
@@ -95,7 +99,7 @@ namespace LD50.Core
                 textures.Add(texture);
             }
 
-            animations[name] = new AnimationData(tex, frames, width, shouldLoop, source);
+            animations[name] = new AnimationData(tex, frames, frameRate == -1 ? FrameRate : frameRate, width, shouldLoop, source);
         }
         
         public AnimationData GetAnimationData(int i)
@@ -145,6 +149,7 @@ namespace LD50.Core
             width[i]            = animdata.width;
             loop[i]             = forceLoop || animdata.loops;
             elapsedTime[i]      = exactStart;
+            frameRate[i]        = animdata.frameRate;
             sources[i]          = animdata.source;
         }
 
@@ -167,6 +172,7 @@ namespace LD50.Core
             width.RemoveAt(i);
             loop.RemoveAt(i);
             elapsedTime.RemoveAt(i);
+            frameRate.RemoveAt(i);
             sources.RemoveAt(i);
             colors.RemoveAt(i);
             scales.RemoveAt(i);
@@ -180,7 +186,7 @@ namespace LD50.Core
                 if (texID[i] == -1 || !bShouldDraw[i]) { continue; }
 
                 Texture2D tex = textures[texID[i]];
-                int frame = startFrame[i] + (int)(elapsedTime[i] * FrameRate);
+                int frame = startFrame[i] + (int)(elapsedTime[i] * frameRate[i]);
 
                 // step frame?
                 if (frame > endFrame[i])
@@ -202,6 +208,7 @@ namespace LD50.Core
                 int x = frame % width[i];
                 int y = frame / width[i];
                 Rectangle source = sources[i];
+                Rectangle centre = new Rectangle(0, 0, source.Width, source.Height);
                 Rectangle offset = source;
                 offset.Offset(source.Width * x, source.Height * y);
 
@@ -215,7 +222,7 @@ namespace LD50.Core
                             offset, //spriteTexture.Bounds, 
                             colors[i],
                             bViewAlignedSprites ? 0 : transforms.angles[i],
-                            source.Center.ToVector2(),
+                            centre.Center.ToVector2(),
                             globalScale * scales[i],
                             SpriteEffects.None,
                             0);

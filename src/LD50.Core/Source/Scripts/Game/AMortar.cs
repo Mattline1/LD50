@@ -1,9 +1,5 @@
-﻿using Microsoft.Xna.Framework.Content;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 
 namespace LD50.Core
 {
@@ -14,11 +10,13 @@ namespace LD50.Core
         public AMortar(ContentManager content, AThreatField threatfield, int radius, int delay) : base(content, threatfield, delay)
         {
             this.radius = radius;
+            defaultAnimation = "Mortar";
+            defaultSpriteSize = 2.0f;
         }
 
-        public override bool TriggerDefence(int i, int radius)
+        public override bool TriggerDefence(int i, int radius, GameTime gameTime)
         {
-            return base.TriggerDefence(i, radius);
+            return base.TriggerDefence(i, this.radius, gameTime);
         }
     }
 }

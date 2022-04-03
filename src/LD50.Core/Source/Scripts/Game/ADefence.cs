@@ -19,6 +19,10 @@ namespace LD50.Core
 
         protected double delayTime = 0.0;
         protected string defaultAnimation = "Mine";
+        protected float defaultSpriteSize = 1.0f;
+
+        public double Cost = 1.0f;
+        public double OrderTime = 3.0f;
 
         public ADefence(ContentManager content, AThreatField threatfield, double delayTime)
         {
@@ -29,6 +33,7 @@ namespace LD50.Core
 
             textureAtlas = content.Load<Texture2D>("DefencesAtlas");
             sprites.AddSpriteAnimation("Mine", 16, 16, textureAtlas, new Rectangle(0, 0, 32, 32), true);
+            sprites.AddSpriteAnimation("Mortar", 32, 8, textureAtlas, new Rectangle(0, 32, 64, 64), true, 10);
         }
 
         public void AddDefence(Vector3 destination, GameTime gameTime)
@@ -39,11 +44,11 @@ namespace LD50.Core
                 timestamps.Add(gameTime.TotalGameTime.TotalSeconds);
                 
                 transforms.Add(0, GetGridCoords(destination).AsVector3());
-                sprites.AddSprite(defaultAnimation, 1.0f);
+                sprites.AddSprite(defaultAnimation, defaultSpriteSize);
             }
         }
 
-        public virtual bool TriggerDefence(int i, int radius)
+        public virtual bool TriggerDefence(int i, int radius, GameTime gameTime)
         {
             FIntVector2 gridcoords = GetGridCoords(destinations[i]);
             RemoveDefence(i);
@@ -91,7 +96,7 @@ namespace LD50.Core
             {
                 double diff = gameTime.TotalGameTime.TotalSeconds - timestamps[i];
 
-                if (diff >= delayTime && TriggerDefence(i, 2))
+                if (diff >= delayTime && TriggerDefence(i, 2, gameTime))
                 {
                     continue;
                 }

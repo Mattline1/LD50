@@ -83,7 +83,7 @@ namespace LD50.Core
             //scripts
             AThreatField threatField = new AThreatField(grid, grid, Content);
             AInput inputScript = new AInput(input);
-            ADefenceController defences = new ADefenceController(Content, threatField, inputScript, view3D);
+            ADefenceController defences = new ADefenceController(Content, threatField, inputScript, view3D, statistics);
 
             scripts.Add(threatField);
             scripts.Add(inputScript);
