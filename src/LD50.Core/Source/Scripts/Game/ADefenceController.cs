@@ -114,8 +114,12 @@ namespace LD50.Core
             {
                 audio.PlaySingle("ordered");
                 AFactory.Resource -= defences[index].Cost;
+
+                if (orders[index] == 0)
+                {
+                    orderTimeStamps[index] = gameTime.TotalGameTime.TotalSeconds;
+                }
                 orders[index]++;
-                orderTimeStamps[index] = gameTime.TotalGameTime.TotalSeconds;
             }
             else
             {
@@ -161,22 +165,27 @@ namespace LD50.Core
             }
 
             //HACK for game jam, there should be a better way to edit widgets
-            for (int i = 0; i < defences.Count; i++)
-            {
-                canvas.widgets.texts[8 + i] = string.Format("> {0} \n\n> {1} ", stockpiles[i], orders[i]);
-            }
 
             for (int i = 0; i < orders.Count; i++)
             {
                 if (orders[i] > 0)
                 {
-                    if (gameTime.TotalGameTime.TotalSeconds - orderTimeStamps[i] > defences[i].OrderTime)
+                    double diff = gameTime.TotalGameTime.TotalSeconds - orderTimeStamps[i];
+                    double countdown = defences[i].OrderTime - diff;
+
+                    if (countdown <= 0)
                     {
                         orders[i]--;
                         stockpiles[i]++;
                         orderTimeStamps[i] = gameTime.TotalGameTime.TotalSeconds;
                         audio.PlaySingle("gain");
                     }
+
+                    canvas.widgets.texts[8 + i] = string.Format(">{0}\n>{1}\n{2}", stockpiles[i], orders[i], countdown.ToString("0.00"));
+                }
+                else
+                {
+                    canvas.widgets.texts[8 + i] = string.Format(">{0}\n\n>{1}", stockpiles[i], orders[i]);
                 }
             }
 

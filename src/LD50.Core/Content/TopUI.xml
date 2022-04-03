@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XnaContent xmlns:ns="Microsoft.Xna.Framework">
+  <Asset Type="LD50.XMLSchema.FCanvas">
+  <ID>test</ID>
+	<root>0 0 0 0</root>
+	<anchor>N</anchor>
+	<parents>-1 -1</parents>
+  <IDs>
+    <Item>button1</Item>
+    <Item>text1</Item>
+  </IDs>
+  <textures>
+		<Item>TopBar</Item>
+    <Item></Item>
+	</textures>
+	<texts>
+    <Item>_</Item>
+	  <Item>Resource</Item>
+	</texts>
+	<rectangles>
+    -450 0 900 56
+    200 36 0 0
+  </rectangles>
+	<sources>
+    0 0 900 56
+    0 0 0 0
+  </sources>	
+	<colors>FFB6B2A5 FFB6B2A5</colors>
+	<widgetTypes>
+	  <Item>button</Item>
+    <Item>text</Item>
+	</widgetTypes>
+  </Asset>
+</XnaContent>

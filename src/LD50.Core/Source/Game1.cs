@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using LD50.XMLSchema;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
@@ -59,7 +60,7 @@ namespace LD50.Core
             view3D.viewport.Width  = preferredWidth;
             view3D.viewport.Height = preferredHeight;
 
-            view3D.position = new Vector3(grid / 2 - 0.5f, grid * 1.3f , grid / 2 + 0.5f);
+            view3D.position = new Vector3(grid / 2 - 0.5f, grid * 1.4f , grid / 2 - 0.5f);
             view3D.rotation = new Vector3(0.0f, MathHelper.ToRadians(-90), 0.0f);
             view3D.window   = new Vector2(4.0f, 2.4f);
             view3D.BuildMatrices();
@@ -86,21 +87,32 @@ namespace LD50.Core
             audio.Play("music").IsLooped = true;
 
             //scripts
-            AThreatField threatField = new AThreatField(grid, grid, Content, audio);
             AInput inputScript = new AInput(input);
+            AMenus menus = new AMenus(Content, GraphicsDevice, inputScript, audio);
+
+            scripts.Add(inputScript);
+
+            InitializeLevel(inputScript);
+
+            scripts.Add(menus);
+
+            RecalculateViewMatrix(900, 900);
+        }
+
+        protected void InitializeLevel(AInput inputScript)
+        {
+            //scripts
+            AThreatField threatField = new AThreatField(grid, grid, Content, audio);
             ADefenceController defences = new ADefenceController(Content, GraphicsDevice, threatField, inputScript, audio, view3D, statistics);
 
             scripts.Add(threatField);
-            scripts.Add(inputScript);
             scripts.Add(defences);
-
-            RecalculateViewMatrix(900, 900);
 
             // ensure correct sprite scaling
             threatField.SetGlobalScale(0.5f);
             defences.SetGlobalScale(0.5f);
 
-            Window.ClientSizeChanged += new EventHandler<EventArgs>((Object sender, EventArgs e) => 
+            Window.ClientSizeChanged += new EventHandler<EventArgs>((Object sender, EventArgs e) =>
             {
                 float scaleFactor = (float)Window.ClientBounds.Height / 900.0f;
                 threatField.SetGlobalScale(scaleFactor * 0.5f);
@@ -108,6 +120,7 @@ namespace LD50.Core
             }
             );
         }
+
 
         protected override void LoadContent()
         {

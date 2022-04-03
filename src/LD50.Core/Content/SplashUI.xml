@@ -2,7 +2,7 @@
 <XnaContent xmlns:ns="Microsoft.Xna.Framework">
   <Asset Type="LD50.XMLSchema.FCanvas">
   <ID>test</ID>
-	<root>0 0 0 0</root>
+	<root>50 0 0 0</root>
 	<anchor>S</anchor>
 	<parents>-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1</parents>
   <IDs>

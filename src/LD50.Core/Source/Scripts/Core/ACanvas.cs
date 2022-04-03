@@ -12,7 +12,7 @@ namespace LD50.Core
     {
         private SpriteFont bodyFont;
 
-        //HACK for game jam, there should be a better way to edit widgets
+        //HACK for game jam, there should be a better way to edit widgets than public
         public FCanvas widgets;
 
         private Dictionary<string, Texture2D> textures = new Dictionary<string, Texture2D>();
@@ -28,10 +28,24 @@ namespace LD50.Core
 
         public ACanvas(ContentManager Content, GraphicsDevice graphicsDevice, AInput input, FCanvas widgetStruct)
         {
-            graphics    = graphicsDevice;
-            inputScript = input;
-            widgets     = widgetStruct;
-            bodyFont    = Content.Load<SpriteFont>("RoentgenNbp");
+            graphics = graphicsDevice;
+            bodyFont = Content.Load<SpriteFont>("RoentgenNbp");
+
+            SwitchCanvas(Content, widgetStruct);
+
+            if (input != null)
+            {
+                inputScript = input;
+                input.BindAction("primary.Released", EFocus.GameUI, (GameTime gt) => { suffix = ".Released"; });
+                input.BindAction("primary.Pressed", EFocus.GameUI, (GameTime gt) => { suffix = ".Pressed"; });
+                input.BindAction("primary.OnPressed", EFocus.GameUI, (GameTime gt) => { suffix = ".OnClick"; });
+                input.BindAction("primary.OnReleased", EFocus.GameUI, (GameTime gt) => { suffix = ".OnEndClick"; });
+            }
+        }
+
+        public void SwitchCanvas(ContentManager Content, FCanvas widgetStruct)
+        {
+            widgets = widgetStruct;
 
             foreach (string texture in widgets.textures)
             {
@@ -40,11 +54,7 @@ namespace LD50.Core
                     textures.Add(texture, Content.Load<Texture2D>(texture));
                 }
             }
-
-            input.BindAction("primary.Released",    EFocus.GameUI, (GameTime gt) => { suffix = ".Released"; });
-            input.BindAction("primary.Pressed",     EFocus.GameUI, (GameTime gt) => { suffix = ".Pressed"; });
-            input.BindAction("primary.OnPressed",   EFocus.GameUI, (GameTime gt) => { suffix = ".OnClick"; });
-            input.BindAction("primary.OnReleased",  EFocus.GameUI, (GameTime gt) => { suffix = ".OnEndClick"; });
+            //todo in a correct implementation, this should clear textures and bindings
         }
 
         public void BindAction(string action, WidgetDelegate callback)
@@ -160,6 +170,8 @@ namespace LD50.Core
 
         public int Update(GameTime gameTime)
         {
+            if (inputScript == null) { return 1; }
+
             int currentParent = 0;
             Rectangle view = graphics.Viewport.Bounds;
             Rectangle root = widgets.root;
