@@ -50,3 +50,12 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+*.v2
+*.suo
+*.xcf
+/src/LD50.Core/obj
+/src/LD50.XMLSchema/obj
+/src/LD50.XMLSchema/bin/Debug/net5.0
+/src/LD50.Core/bin/Debug/net5.0
+/src/LD50.Core/Content/bin/DesktopGL
+/src/LD50.Core/Content/obj/DesktopGL
