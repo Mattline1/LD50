@@ -55,6 +55,26 @@ namespace LD50.Core
             // pause
             canvases[4].BindAction("button1.OnClick", (gt) => ChangeCanvas(2));
             canvases[4].BindAction("button2.OnClick", (gt) => game.Exit());
+
+            NewMessage();
+        }
+
+        public void NewMessage()
+        {
+            List<string> messages = new List<string>();
+
+            messages.Add("All hope is lost.");
+            messages.Add("The inevitable has occurred.");
+            messages.Add("YOU DIED");
+            messages.Add("Mission failure, we'll get 'em next time.");
+            messages.Add("All your base are belong to the creep.");
+            messages.Add("Ooops");
+            messages.Add("We'll go to the one place the creep can't get us... Spppaaaacccee");
+            messages.Add("Is this the bad ending?");
+            messages.Add("Do you think the insurance will cover this?");
+
+            Random rand = new Random();
+            canvases[3].widgets.texts[2] = messages[rand.Next(messages.Count)];
         }
 
         public int Draw(UView3D view3D, GameTime gameTime)
@@ -77,6 +97,7 @@ namespace LD50.Core
 
         public void ChangeCanvas(int activecanvas)
         {
+            NewMessage();
             nextCanvas = activecanvas;
         }
 

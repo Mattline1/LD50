@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 
 namespace LD50.Core
@@ -32,6 +33,7 @@ namespace LD50.Core
         // internal data
         private List<Texture2D> textures = new List<Texture2D>();
         private List<bool> bShouldDraw = new List<bool>();
+        private List<bool> bIsFinished = new List<bool>();
         private Dictionary<string, AnimationData> animations = new Dictionary<string, AnimationData>();
 
 
@@ -79,12 +81,14 @@ namespace LD50.Core
             sources.Add(new Rectangle());
             colors.Add(Color.White);
             scales.Add(scale);
+
             bShouldDraw.Add(true);
+            bIsFinished.Add(false);
 
             // play animation on entity if animation is provided
             if (defaultAnimation != "")
             {
-                Play(index, defaultAnimation, 0 , true);
+                Play(index, defaultAnimation, 0 , false);
             }
 
             return index;
@@ -100,6 +104,23 @@ namespace LD50.Core
             }
 
             animations[name] = new AnimationData(tex, frames, frameRate == -1 ? FrameRate : frameRate, width, shouldLoop, source);
+        }
+
+        public void ClearFinished(Func<int, int> callback)
+        {
+            int i = 0;
+            while (i < bIsFinished.Count)
+            {
+                if (bIsFinished[i])
+                {
+                    RemoveSprite(i);
+                    callback.Invoke(i);
+                }
+                else
+                {
+                    i++;
+                }
+            }
         }
         
         public AnimationData GetAnimationData(int i)
@@ -176,7 +197,9 @@ namespace LD50.Core
             sources.RemoveAt(i);
             colors.RemoveAt(i);
             scales.RemoveAt(i);
+
             bShouldDraw.RemoveAt(i);
+            bIsFinished.RemoveAt(i);
         }
 
         public int Draw2D(UView3D view, SpriteBatch spriteBatch, GameTime gameTime)
@@ -199,7 +222,7 @@ namespace LD50.Core
                     else
                     {
                         frame = endFrame[i]; // rest on last frame 
-                        // also trigger callback - maybe not here, but flag it needs to happen here
+                        bIsFinished[i] = true;
                     }
                 }
                 

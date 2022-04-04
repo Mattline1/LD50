@@ -113,6 +113,7 @@ namespace LD50.Core
             keyBindings.Add(new TBinding(Keys.D7, "7"));
 
             keyBindings.Add(new TBinding(Keys.Escape, "escape"));
+            keyBindings.Add(new TBinding(Keys.Back, "back"));
         }
 
         public TActionHandle BindAction(string action, ButtonDelegate callback)

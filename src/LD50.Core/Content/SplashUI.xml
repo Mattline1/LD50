@@ -19,8 +19,9 @@
   </rectangles>
 	<sources>
     0 0 900 900
-  </sources>	
-	<colors>FFfafafa</colors>
+  </sources>
+  <colors>FFfafafa</colors>
+  <highlightcolors>FFfafafa</highlightcolors>
 	<widgetTypes>
 	  <Item>button</Item>
 	</widgetTypes>

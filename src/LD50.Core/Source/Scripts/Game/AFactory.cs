@@ -7,7 +7,7 @@ namespace LD50.Core
     {
         public static double Resource = 0;
 
-        public AFactory(ContentManager content, AThreatField threatfield, UAudio audio, int delay) : base(content, threatfield, audio, delay)
+        public AFactory(ContentManager content, AFX fx, AThreatField threatfield, UAudio audio, int delay) : base(content, fx, threatfield, audio, delay)
         {
             defaultAnimation = "Factory";
             defaultSpriteSize = 1.0f;
@@ -26,5 +26,12 @@ namespace LD50.Core
             return false;
         }
 
+        public void ForceFail(GameTime gameTime)
+        {
+            while (transforms.Count > 0)
+            {
+                base.TriggerDefence(0, 2, gameTime);
+            }
+        }
     }
 }

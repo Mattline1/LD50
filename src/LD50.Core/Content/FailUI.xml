@@ -4,31 +4,38 @@
     <ID>test</ID>
     <root>0 0 0 0</root>
     <anchor>C</anchor>
-    <parents>-1 -1</parents>
+    <parents>-1 -1 -1</parents>
     <IDs>
       <Item>button1</Item>
       <Item>button2</Item>
+      <Item>text1</Item>
     </IDs>
     <textures>
       <Item>GUITexture</Item>
       <Item>GUITexture</Item>
+      <Item></Item>
     </textures>
     <texts>
       <Item>_</Item>
       <Item>_</Item>
+      <Item>Fail Message</Item>
     </texts>
     <rectangles>
       -64 -32 128 32
       -64 32 128 32
+      -200 -72 0 0
     </rectangles>
     <sources>
       128 160 128 32
       128 192 128 32
+      0 0 0 0
     </sources>
-    <colors>FFB6B2A5 FFB6B2A5</colors>
+    <colors>FFB6B2A5 FFB6B2A5 FFB6B2A5</colors>
+    <highlightcolors>FFfafafa FFfafafa FFfafafa</highlightcolors>
     <widgetTypes>
       <Item>button</Item>
       <Item>button</Item>
+      <Item>text</Item>
     </widgetTypes>
   </Asset>
 </XnaContent>

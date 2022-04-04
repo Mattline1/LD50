@@ -22,6 +22,7 @@ namespace LD50.Core
 
         private string suffix   = ".Released";
         private bool bIsHovered = false;
+        private List<int> hoveredWidgets = new List<int>();
 
         private GraphicsDevice graphics;
         private AInput inputScript;
@@ -158,8 +159,8 @@ namespace LD50.Core
                             bodyFont,
                             widgets.texts[i],
                             rect.Location.ToVector2(),
-                            widgets.colors[i]
-                        );
+                            bIsHovered && hoveredWidgets.Contains(i) ? widgets.highlightcolors[i] : widgets.colors[i]
+                        ) ;
                         break;
 
                     case EWidgetType.panel:
@@ -169,7 +170,7 @@ namespace LD50.Core
                             textures[widgets.textures[i]],
                             rect,
                             widgets.sources[i],
-                            widgets.colors[i]
+                            bIsHovered && hoveredWidgets.Contains(i) ? widgets.highlightcolors[i] : widgets.colors[i]
                         );
                         break;
                     default:
@@ -184,6 +185,8 @@ namespace LD50.Core
 
         public int Update(GameTime gameTime)
         {
+            hoveredWidgets.Clear();
+
             int currentParent = 0;
             Rectangle view = graphics.Viewport.Bounds;
             Rectangle root = widgets.root;
@@ -256,6 +259,7 @@ namespace LD50.Core
                 if (!rect.Contains(inputScript.ControlPosition)) { continue; }
 
                 hovered = true;
+                hoveredWidgets.Add(i);
 
                 switch (widgets.widgetTypes[i])
                 {

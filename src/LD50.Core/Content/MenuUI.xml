@@ -24,8 +24,9 @@
 	<sources>
     128 128 128 32
     128 192 128 32
-  </sources>	
-	<colors>FFB6B2A5 FFB6B2A5</colors>
+  </sources>
+  <colors>FFB6B2A5 FFB6B2A5</colors>
+  <highlightcolors>FFfafafa FFfafafa</highlightcolors>
 	<widgetTypes>
 	  <Item>button</Item>
     <Item>button</Item>

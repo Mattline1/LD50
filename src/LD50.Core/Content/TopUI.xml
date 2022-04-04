@@ -24,8 +24,9 @@
 	<sources>
     0 0 900 56
     0 0 0 0
-  </sources>	
-	<colors>FFB6B2A5 FFB6B2A5</colors>
+  </sources>
+  <colors>FFB6B2A5 FFB6B2A5</colors>
+  <highlightcolors>FFB6B2A5 FFB6B2A5</highlightcolors>
 	<widgetTypes>
 	  <Item>button</Item>
     <Item>text</Item>

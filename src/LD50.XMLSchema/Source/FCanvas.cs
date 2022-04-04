@@ -39,6 +39,7 @@ namespace LD50.XMLSchema
         public Rectangle[]      rectangles;
         public Rectangle[]      sources;
         public Color[]          colors;
+        public Color[]          highlightcolors;
         public EWidgetType[]    widgetTypes;
 
         public string Type => "LD50.ACanvas";

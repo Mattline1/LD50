@@ -7,7 +7,7 @@ namespace LD50.Core
     {
         private readonly int radius;
 
-        public AMortar(ContentManager content, AThreatField threatfield, UAudio audio, int radius, int delay) : base(content, threatfield, audio, delay)
+        public AMortar(ContentManager content, AFX fx, AThreatField threatfield, UAudio audio, int radius, int delay) : base(content, fx, threatfield, audio, delay)
         {
             this.radius = radius;
             defaultAnimation = "Mortar";

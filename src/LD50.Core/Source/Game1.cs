@@ -8,14 +8,13 @@ using System.Diagnostics;
 
 namespace LD50.Core
 {
+    //public delegate void FailDelegate(GameTime gameTime, float gameStart);
+
     public class Game1 : Game
     {
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
-
-        // active events
-        private List<EventHandler<EventArgs>> eventHandlers = new List<EventHandler<EventArgs>>();
-
+        
         // Scripts
         private List<IScript> scripts = new List<IScript>();
 
@@ -51,16 +50,12 @@ namespace LD50.Core
             Window.AllowUserResizing = true;
             Window.ClientSizeChanged += new EventHandler<EventArgs>(OnResize);
         }
+
         public void OnResize(Object sender, EventArgs e)
         {
             RecalculateViewMatrix(
                 Window.ClientBounds.Width,
                 Window.ClientBounds.Height);
-        }
-
-        internal void Quit()
-        {
-            Exit();
         }
 
         protected void RecalculateViewMatrix(int preferredWidth, int preferredHeight)
@@ -112,14 +107,7 @@ namespace LD50.Core
 
         protected void ClearLevel()
         {
-            // clean prior level
-            foreach (var eventhandler in eventHandlers)
-            {
-                Window.ClientSizeChanged -= eventhandler;
-            }
-            eventHandlers.Clear();
-            scripts.RemoveAll(item => item is AThreatField);
-            scripts.RemoveAll(item => item is ADefenceController);
+            scripts.RemoveAll(item => item is ALevel);
         }
 
         public void RestartLevel()
@@ -129,27 +117,19 @@ namespace LD50.Core
 
         protected void InitializeLevel()
         {
-            //scripts
-            AThreatField threatField = new AThreatField(grid, grid, Content, audio);
-            ADefenceController defences = new ADefenceController(Content, GraphicsDevice, threatField, input, audio, view3D, statistics);
+            ALevel level = new ALevel(this, audio, input, view3D, statistics, grid);
+            scripts.Insert(1, level);
 
-            scripts.Insert(1, defences);
-            scripts.Insert(1, threatField);
+            TActionHandle handle = input.BindAction("back.OnPressed", (gt) => level.ForceFailState(gt));
 
-            // ensure correct sprite scaling
-            threatField.SetGlobalScale(0.5f);
-            defences.SetGlobalScale(0.5f);
-
-            EventHandler < EventArgs > newEventhandler = new EventHandler<EventArgs>((Object sender, EventArgs e) =>
+            level.OnFailState += new EventHandler<EventArgs>((Object sender, EventArgs e) =>
             {
-                float scaleFactor = (float)Window.ClientBounds.Height / 900.0f;
-                threatField.SetGlobalScale(scaleFactor * 0.5f);
-                defences.SetGlobalScale(scaleFactor * 0.5f);
-            }
-            );
-
-            Window.ClientSizeChanged += newEventhandler;
-            eventHandlers.Add(newEventhandler);
+                input.RemoveAction(handle);
+                IScript script = scripts.Find(item => item is AMenus);
+                AMenus menu = (AMenus)script;
+                menu.ChangeCanvas(3);
+                level.Stop();
+            });
         }
 
         protected override void LoadContent()
@@ -185,28 +165,19 @@ namespace LD50.Core
         protected override void Draw(GameTime gameTime)
         {
             drawStopwatch.Restart();
+
             GraphicsDevice.Clear(new Color(45, 45, 45, 1));
-
-            foreach (IScript script in scripts)
-            {
-                script.Draw(view3D, gameTime);
-            }
-
             spriteBatch.Begin();
             foreach (IScript script in scripts)
             {
                 script.Draw2D(view3D, spriteBatch, gameTime);
             }
-
-            //HACK present important info
-            //spriteBatch.DrawString(font, "Resources: " + (1.0 / gameTime.ElapsedGameTime.TotalSeconds).ToString("0"), new Vector2(10, 10), Color.BlanchedAlmond);
-
             spriteBatch.End();
+
             drawStopwatch.Stop();
 
             // stats
             DrawStats(gameTime);
-
             base.Draw(gameTime);
         }
 

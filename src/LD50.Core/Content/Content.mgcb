@@ -10,7 +10,7 @@
 
 #-------------------------------- References --------------------------------#
 
-/reference:..\..\LD50.XMLSchema\bin\Release\netcoreapp3.1\LD50.XMLSchema.dll
+/reference:..\..\LD50.XMLSchema\bin\Debug\netcoreapp3.1\LD50.XMLSchema.dll
 
 #---------------------------------- Content ---------------------------------#
 
@@ -104,6 +104,11 @@
 /processor:PassThroughProcessor
 /build:GUI.xml
 
+#begin GUI2.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:GUI2.xml
+
 #begin GUITexture.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -115,6 +120,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:GUITexture.png
+
+#begin Line.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Line.jpg
 
 #begin main.png
 /importer:TextureImporter

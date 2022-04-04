@@ -57,19 +57,26 @@ namespace LD50.Core
 
         public int width;
         public int height;
+        private readonly AFX fx;
         private readonly UAudio audio;
         private SoundEffectInstance creepnoise;
 
         private Random rnd = new Random();
 
-        private float creepVirality  = 200;
+        private float creepVirality  = 50;
         private float creepDiffusion = 200;
 
-        public AThreatField(int width, int height, ContentManager content, UAudio audio)
+        protected float missileTempo = 20.0f;
+        protected float lastMissileTimeStamp = -20.0f;
+        protected AMissiles missiles;
+
+
+        public AThreatField(int width, int height, ContentManager content, AFX fx, UAudio audio, UView3D view3D)
         {
             this.width  = width;
             this.height = height;
-            this.audio = audio;
+            this.fx = fx;
+            this.audio  = audio;
             transforms  = new ATransform2D();
             sprites     = new ASprites(content, transforms);
 
@@ -79,6 +86,9 @@ namespace LD50.Core
             creepnoise = audio.Play("creep");
             creepnoise.IsLooped = true;
             creepnoise.Volume = 0.0f;
+
+            missiles = new AMissiles(content, fx, this, audio, view3D, true);
+            missiles.defaultColor = Color.Red;
 
             for (int h = 0; h < height; h++)
             {
@@ -96,6 +106,16 @@ namespace LD50.Core
             }
         }
 
+        internal void Stop()
+        {
+            creepnoise.Stop();
+        }
+
+        internal void DoEndGame()
+        {
+            creepVirality *= 10;
+        }
+
         public int Draw(UView3D view3D, GameTime gameTime)
         {
             return 1;
@@ -104,6 +124,7 @@ namespace LD50.Core
         public int Draw2D(UView3D view3D, SpriteBatch spriteBatch, GameTime gameTime)
         {
             sprites.Draw2D(view3D, spriteBatch, gameTime);
+            missiles.Draw2D(view3D, spriteBatch, gameTime);
             return 1;
         }
 
@@ -118,6 +139,13 @@ namespace LD50.Core
             int trueX = (i % width) + x;
             int trueI = Get1DIndex(trueX, trueY);
             return Math.Clamp(trueI, 0, range - 1);
+        }
+
+        public FIntVector2 Get2DIndex(int i)
+        {
+            int y = Math.Clamp(i / width, 0, height - 1);
+            int x = i % width;
+            return new FIntVector2(x, y);
         }
 
         public bool GetIsResource(FIntVector2 coords)
@@ -227,6 +255,15 @@ namespace LD50.Core
                 fieldB.bIsResource[i] = isResource;
             }
         }
+        public void SetSource(int x, int y, bool isSource)
+        {
+            int i = Get1DIndex(x, y);
+            if (IsValidIndex(i))
+            {
+                fieldA.bIsSource[i] = isSource;
+                fieldB.bIsSource[i] = isSource;
+            }
+        }
 
         public void Step(GameTime gametime)
         {
@@ -265,6 +302,14 @@ namespace LD50.Core
 
                 sprites.SetColor(i, Color.Lerp(Color.White, Color.Red, m / 255.0f));
 
+                if (readField.bIsSource[i] 
+                    && gametime.TotalGameTime.Seconds - lastMissileTimeStamp > missileTempo &&
+                    rnd.Next(0, 100) == 50)
+                {
+                    missiles.AddDefence(Get2DIndex(rnd.Next(0, width * height)).AsVector3(), gametime, Get2DIndex(i).AsVector3());
+                    lastMissileTimeStamp = gametime.TotalGameTime.Seconds;
+                }
+
                 if (readField.bIsResource[i])
                 {
                     sprites.SetColor(i, Color.MediumPurple);
@@ -279,6 +324,7 @@ namespace LD50.Core
         public int Update(GameTime gameTime)
         {
             Step(gameTime);
+            missiles.Update(gameTime);
             return 1;
         }
     }

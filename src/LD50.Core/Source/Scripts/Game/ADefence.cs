@@ -8,27 +8,33 @@ namespace LD50.Core
 {
     public class ADefence : IScript
     {
+        private readonly AFX fx;
         protected readonly AThreatField threatfield;
-        private readonly UAudio audio;
+        protected readonly UAudio audio;
         protected ATransform2D    transforms;
         protected ASprites        sprites;
         protected Texture2D       textureAtlas;
 
-        protected List<Vector3> destinations  = new List<Vector3>();
-        protected List<double>   timestamps   = new List<double>();
+        protected List<Vector3> destinations    = new List<Vector3>();
+        protected List<Vector3> origins         = new List<Vector3>();
+        protected List<double>   timestamps     = new List<double>();
 
         protected double delayTime = 0.0;
-        protected string defaultAnimation = "Mine";
-        protected float defaultSpriteSize = 1.0f;
+        public string defaultAnimation = "Mine";
+        public float defaultSpriteSize = 1.0f;
+        public Color defaultColor = Color.White;
 
         public double Cost = 1.0f;
         public double OrderTime = 3.0f;
 
         public bool bShowUI;
 
-        public ADefence(ContentManager content, AThreatField threatfield, UAudio audio, double delayTime)
+        public int Count => transforms.Count;
+
+        public ADefence(ContentManager content, AFX fx, AThreatField threatfield, UAudio audio, double delayTime)
         {
             this.delayTime = delayTime;
+            this.fx = fx;
             this.threatfield = threatfield;
             this.audio = audio;
             transforms  = new ATransform2D();
@@ -38,17 +44,20 @@ namespace LD50.Core
             sprites.AddSpriteAnimation("Mine", 16, 16, textureAtlas, new Rectangle(0, 0, 32, 32), true);
             sprites.AddSpriteAnimation("Mortar", 32, 8, textureAtlas, new Rectangle(0, 32, 64, 64), true, 10);
             sprites.AddSpriteAnimation("Factory", 16, 16, textureAtlas, new Rectangle(0, 288, 32, 32), true, 6);
+            sprites.AddSpriteAnimation("Target", 5, 5, textureAtlas, new Rectangle(0, 320, 32, 32), true, 5);
         }
 
-        public void AddDefence(Vector3 destination, GameTime gameTime)
+        public virtual void AddDefence(Vector3 destination, GameTime gameTime, Vector3 origin)
         {
             if (!destinations.Contains(destination))
             {
                 destinations.Add(destination);
+                origins.Add(origin);
                 timestamps.Add(gameTime.TotalGameTime.TotalSeconds);
                 
                 transforms.Add(0, GetGridCoords(destination).AsVector3());
-                sprites.AddSprite(defaultAnimation, defaultSpriteSize);
+                int i = sprites.AddSprite(defaultAnimation, defaultSpriteSize);
+                sprites.SetColor(i, defaultColor);
             }
         }
 
@@ -57,7 +66,6 @@ namespace LD50.Core
             FIntVector2 gridcoords = GetGridCoords(destinations[i]);
             RemoveDefence(i);
             threatfield.SetMagnitudeInRadius(gridcoords.x, gridcoords.y, radius, 0);
-            audio.PlaySingle("explosion");
             return true;
         }
 
@@ -71,7 +79,10 @@ namespace LD50.Core
 
         public void RemoveDefence(int i)
         {
+            fx.AddFX("explosion", transforms.positions[i]);
+
             destinations.RemoveAt(i);
+            origins.RemoveAt(i);
             timestamps.RemoveAt(i);
             transforms.Remove(i);
             sprites.RemoveSprite(i);
@@ -112,6 +123,22 @@ namespace LD50.Core
             }
 
             return 1;
+        }
+
+        internal Vector3 GetNearestDefence(Vector3 destination)
+        {
+            float maxLength = float.MaxValue;
+            Vector3 toReturn = Vector3.Zero;
+
+            foreach (var origin in transforms.positions)
+            {
+                if ((origin - destination).LengthSquared() < maxLength)
+                {
+                    toReturn = origin;
+                }
+            }
+
+            return toReturn;
         }
     }
 }
