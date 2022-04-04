@@ -13,8 +13,14 @@ namespace LD50.Core
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
 
+        // active events
+        private List<EventHandler<EventArgs>> eventHandlers = new List<EventHandler<EventArgs>>();
+
         // Scripts
         private List<IScript> scripts = new List<IScript>();
+
+        //HACK for game jam
+        public AInput inputScript;
 
         // Services
         private UAudio audio = null;
@@ -31,7 +37,8 @@ namespace LD50.Core
         private Stopwatch updateStopwatch = null;
         private Stopwatch drawStopwatch = null;
         private SpriteFont font;
-        private bool drawStats = true;
+        private bool drawStats = false;
+        private bool restartLevel = false;
 
         private int grid = 50;
 
@@ -49,6 +56,11 @@ namespace LD50.Core
             RecalculateViewMatrix(
                 Window.ClientBounds.Width,
                 Window.ClientBounds.Height);
+        }
+
+        internal void Quit()
+        {
+            Exit();
         }
 
         protected void RecalculateViewMatrix(int preferredWidth, int preferredHeight)
@@ -86,41 +98,59 @@ namespace LD50.Core
             //music 
             audio.Play("music").IsLooped = true;
 
-            //scripts
-            AInput inputScript = new AInput(input);
-            AMenus menus = new AMenus(Content, GraphicsDevice, inputScript, audio);
+            AInput uiScript = new AInput(input);
+            scripts.Add(uiScript);
 
-            scripts.Add(inputScript);
-
-            InitializeLevel(inputScript);
-
+            AMenus menus = new AMenus(Content, GraphicsDevice, uiScript, audio, this);
             scripts.Add(menus);
+
+            // bind directly to service
+            input.BindAction("escape.OnPressed", (gt) => menus.TryPause());
 
             RecalculateViewMatrix(900, 900);
         }
 
-        protected void InitializeLevel(AInput inputScript)
+        protected void ClearLevel()
+        {
+            // clean prior level
+            foreach (var eventhandler in eventHandlers)
+            {
+                Window.ClientSizeChanged -= eventhandler;
+            }
+            eventHandlers.Clear();
+            scripts.RemoveAll(item => item is AThreatField);
+            scripts.RemoveAll(item => item is ADefenceController);
+        }
+
+        public void RestartLevel()
+        {
+            restartLevel = true;
+        }
+
+        protected void InitializeLevel()
         {
             //scripts
             AThreatField threatField = new AThreatField(grid, grid, Content, audio);
-            ADefenceController defences = new ADefenceController(Content, GraphicsDevice, threatField, inputScript, audio, view3D, statistics);
+            ADefenceController defences = new ADefenceController(Content, GraphicsDevice, threatField, input, audio, view3D, statistics);
 
-            scripts.Add(threatField);
-            scripts.Add(defences);
+            scripts.Insert(1, defences);
+            scripts.Insert(1, threatField);
 
             // ensure correct sprite scaling
             threatField.SetGlobalScale(0.5f);
             defences.SetGlobalScale(0.5f);
 
-            Window.ClientSizeChanged += new EventHandler<EventArgs>((Object sender, EventArgs e) =>
+            EventHandler < EventArgs > newEventhandler = new EventHandler<EventArgs>((Object sender, EventArgs e) =>
             {
                 float scaleFactor = (float)Window.ClientBounds.Height / 900.0f;
                 threatField.SetGlobalScale(scaleFactor * 0.5f);
                 defences.SetGlobalScale(scaleFactor * 0.5f);
             }
             );
-        }
 
+            Window.ClientSizeChanged += newEventhandler;
+            eventHandlers.Add(newEventhandler);
+        }
 
         protected override void LoadContent()
         {
@@ -131,9 +161,19 @@ namespace LD50.Core
         {
             updateStopwatch.Restart();
 
-            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
+            // level change?
+            if (restartLevel)
+            {
+                ClearLevel();
+                InitializeLevel();
 
+                restartLevel = false;
+            }
+
+            // update services
+            input.Update(gameTime);
+
+            // update scripts
             foreach (IScript script in scripts)
             {
                 script.Update(gameTime);
@@ -173,6 +213,8 @@ namespace LD50.Core
         private void DrawStats(GameTime gameTime)
         {
             spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, rasterizerUIState);
+
+            statistics.Set("Focus", AInput.focusStack.Peek().ToString());
 
             if (drawStats)
             {

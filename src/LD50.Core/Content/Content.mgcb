@@ -69,6 +69,11 @@
 /processorParam:Quality=Best
 /build:explosion.wav
 
+#begin FailUI.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:FailUI.xml
+
 #begin File.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
@@ -111,6 +116,18 @@
 /processorParam:TextureFormat=Color
 /build:GUITexture.png
 
+#begin main.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:main.png
+
 #begin MenuUI.xml
 /importer:XmlImporter
 /processor:PassThroughProcessor
@@ -127,6 +144,11 @@
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:ordered.wav
+
+#begin PauseUI.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:PauseUI.xml
 
 #begin SplashUI.xml
 /importer:XmlImporter

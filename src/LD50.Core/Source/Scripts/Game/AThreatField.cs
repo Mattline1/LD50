@@ -55,8 +55,8 @@ namespace LD50.Core
         private ASprites        sprites;
         private Texture2D       textureAtlas;
 
-        private int width;
-        private int height;
+        public int width;
+        public int height;
         private readonly UAudio audio;
         private SoundEffectInstance creepnoise;
 
@@ -215,6 +215,16 @@ namespace LD50.Core
 
                     SetMagnitude(tx, y + yi, magnitude);
                 }
+            }
+        }
+
+        public void SetResource(int x, int y, bool isResource)
+        {
+            int i = Get1DIndex(x, y);
+            if (IsValidIndex(i))
+            {
+                fieldA.bIsResource[i] = isResource;
+                fieldB.bIsResource[i] = isResource;
             }
         }
 

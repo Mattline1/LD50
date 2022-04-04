@@ -40,6 +40,11 @@ namespace LD50.Core
 
         private bool CheckValidToTrigger(EFocus focus)
         {
+            //return Active;
+
+            //HACK to fix a 0 hour bug with input not registering when UI is used.
+            //looks like a problem with the focus stack.
+
             return Active && focusStack.Count > 0 && focus == focusStack.Peek();
         }
 
@@ -76,15 +81,16 @@ namespace LD50.Core
         }
 
         // static interface
-        private static Stack<EFocus> focusStack = new Stack<EFocus>();
+        public static Stack<EFocus> focusStack = new Stack<EFocus>();
 
         public static void PushFocus(EFocus focus)
         {
-            if (focusStack.Count == 0 || focusStack.Peek() >= focus) // >= because more than one script may request focus
+            if (focusStack.Count == 0 || focusStack.Peek() >= focus)
             {
                 focusStack.Push(focus);
             }
         }
+
         public static void PopFocus(EFocus focus)
         {
             if (focusStack.Count != 0 && focusStack.Peek() == focus)
@@ -95,7 +101,7 @@ namespace LD50.Core
 
         public int Update(GameTime gameTime)
         {
-            return handler.Update(gameTime);
+            return 1;
         }
 
         public int Draw(UView3D view3D, GameTime gameTime)

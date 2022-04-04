@@ -20,20 +20,21 @@ namespace LD50.Core
         private readonly UStatistics statistics;
 
         private int activeDefence = 0;
+
         private List<ADefence> defences         = new List<ADefence>();
         private List<int> stockpiles            = new List<int>();
         private List<int> orders                = new List<int>();
         private List<double> orderTimeStamps    = new List<double>();
 
-        public ADefenceController(ContentManager content, GraphicsDevice graphics, AThreatField threatfield, AInput input, UAudio audio, UView3D view3D, UStatistics statistics)
+        public ADefenceController(ContentManager content, GraphicsDevice graphics, AThreatField threatfield, UInput input, UAudio audio, UView3D view3D, UStatistics statistics)
         {
             this.threatfield = threatfield;
-            this.input = input;
+            this.input = new AInput(input);
             this.audio = audio;
             this.view3D = view3D;
             this.statistics = statistics;
 
-            canvas = new ACanvas(content, graphics, input, content.Load<FCanvas>("GUI"));
+            canvas = new ACanvas(content, graphics, this.input, content.Load<FCanvas>("GUI"));
 
             AMines  mines       = new AMines(content, threatfield, audio);
             AMortar mortars     = new AMortar(content, threatfield, audio, 2, 3);
@@ -45,11 +46,11 @@ namespace LD50.Core
             AddDefenceType(mortars, 5);
             AddDefenceType(nukes, 0);
 
-            input.BindAction("primary.OnPressed", OnPressed);
-            input.BindAction("1.OnPressed", (gt) => OnChangeAndOrderType(0, gt));
-            input.BindAction("2.OnPressed", (gt) => OnChangeAndOrderType(1, gt));
-            input.BindAction("3.OnPressed", (gt) => OnChangeAndOrderType(2, gt));
-            input.BindAction("4.OnPressed", (gt) => OnChangeAndOrderType(3, gt));
+            this.input.BindAction("primary.OnPressed", OnPressed);
+            this.input.BindAction("1.OnPressed", (gt) => OnChangeAndOrderType(0, gt));
+            this.input.BindAction("2.OnPressed", (gt) => OnChangeAndOrderType(1, gt));
+            this.input.BindAction("3.OnPressed", (gt) => OnChangeAndOrderType(2, gt));
+            this.input.BindAction("4.OnPressed", (gt) => OnChangeAndOrderType(3, gt));
 
             canvas.BindAction("button1.OnClick", (gt) => OnChangeType(0, gt));
             canvas.BindAction("button2.OnClick", (gt) => OnOrderType(0, gt));
@@ -62,6 +63,12 @@ namespace LD50.Core
 
             canvas.BindAction("button7.OnClick", (gt) => OnChangeType(3, gt));
             canvas.BindAction("button8.OnClick", (gt) => OnOrderType(3, gt));
+
+
+            int width = threatfield.width;
+            int height = threatfield.height;
+            threatfield.SetResource(width / 2, height / 2, true);
+            defences[0].AddDefence(new Vector3(width / 2, 0.0f, height / 2), new GameTime());
         }
 
         private void AddDefence(Vector3 destination, GameTime gameTime)
@@ -192,6 +199,7 @@ namespace LD50.Core
             canvas.Update(gameTime);
 
             statistics.Set("Resource", ((int)AFactory.Resource).ToString());
+
             return 1;
         }
     }

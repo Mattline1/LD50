@@ -33,14 +33,12 @@ namespace LD50.Core
 
             SwitchCanvas(Content, widgetStruct);
 
-            if (input != null)
-            {
-                inputScript = input;
-                input.BindAction("primary.Released", EFocus.GameUI, (GameTime gt) => { suffix = ".Released"; });
-                input.BindAction("primary.Pressed", EFocus.GameUI, (GameTime gt) => { suffix = ".Pressed"; });
-                input.BindAction("primary.OnPressed", EFocus.GameUI, (GameTime gt) => { suffix = ".OnClick"; });
-                input.BindAction("primary.OnReleased", EFocus.GameUI, (GameTime gt) => { suffix = ".OnEndClick"; });
-            }
+            inputScript = input;
+            input.BindAction("primary.Released",    EFocus.GameUI, (GameTime gt) => { suffix = ".Released"; });
+            input.BindAction("primary.Pressed",     EFocus.GameUI, (GameTime gt) => { suffix = ".Pressed"; });
+            input.BindAction("primary.OnPressed",   EFocus.GameUI, (GameTime gt) => { suffix = ".OnClick"; });
+            input.BindAction("primary.OnReleased",  EFocus.GameUI, (GameTime gt) => { suffix = ".OnEndClick"; });
+            
         }
 
         public void SwitchCanvas(ContentManager Content, FCanvas widgetStruct)
@@ -54,6 +52,13 @@ namespace LD50.Core
                     textures.Add(texture, Content.Load<Texture2D>(texture));
                 }
             }
+
+            if (bIsHovered)
+            {
+                bIsHovered = false;
+                AInput.PopFocus(EFocus.GameUI);
+            }
+
             //todo in a correct implementation, this should clear textures and bindings
         }
 
@@ -65,6 +70,15 @@ namespace LD50.Core
             }
 
             bindings[action].Add(callback);
+        }
+
+        public void Disable()
+        {
+            if (bIsHovered)
+            {
+                bIsHovered = false;
+                AInput.PopFocus(EFocus.GameUI);
+            }
         }
 
         public int Draw(UView3D view3D, GameTime gameTime)
@@ -170,8 +184,6 @@ namespace LD50.Core
 
         public int Update(GameTime gameTime)
         {
-            if (inputScript == null) { return 1; }
-
             int currentParent = 0;
             Rectangle view = graphics.Viewport.Bounds;
             Rectangle root = widgets.root;

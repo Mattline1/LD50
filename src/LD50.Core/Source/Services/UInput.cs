@@ -104,7 +104,6 @@ namespace LD50.Core
             keyBindings.Add(new TBinding(Keys.Q, "Q"));
             keyBindings.Add(new TBinding(Keys.E, "E"));
 
-
             keyBindings.Add(new TBinding(Keys.D1, "1"));
             keyBindings.Add(new TBinding(Keys.D2, "2"));
             keyBindings.Add(new TBinding(Keys.D3, "3"));
@@ -112,6 +111,8 @@ namespace LD50.Core
             keyBindings.Add(new TBinding(Keys.D5, "5"));
             keyBindings.Add(new TBinding(Keys.D6, "6"));
             keyBindings.Add(new TBinding(Keys.D7, "7"));
+
+            keyBindings.Add(new TBinding(Keys.Escape, "escape"));
         }
 
         public TActionHandle BindAction(string action, ButtonDelegate callback)
