@@ -70,7 +70,14 @@ namespace LD50.Core
 
         public virtual bool TriggerDefence(int i, int radius, GameTime gameTime)
         {
-            fx.AddFX("explosion", transforms.positions[i]);
+            if (radius > 5)
+            {
+                fx.AddFX("nuke", transforms.positions[i], 3);
+            }
+            else
+            {
+                fx.AddFX("explosion", transforms.positions[i]);
+            }
 
             FIntVector2 gridcoords = GetGridCoords(destinations[i]);
             threatfield.SetMagnitudeInRadius(gridcoords.x, gridcoords.y, radius, 0);

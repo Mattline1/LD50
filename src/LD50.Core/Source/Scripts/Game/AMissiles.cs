@@ -70,7 +70,7 @@ namespace LD50.Core
 
                 RemoveDefence(i);
 
-                //fx.AddFX("explosion", transforms.positions[i]);
+                //fx.AddFX("creep", transforms.positions[i]);
 
                 return true;
             }
@@ -132,7 +132,7 @@ namespace LD50.Core
             while (i < destinations.Count)
             {
                 float dist = GetCurrentDistanceToTarget(i, gameTime);
-                if (dist <= 0.1f && TriggerDefence(i, 2, gameTime))
+                if (dist <= 0.1f && TriggerDefence(i, 0, gameTime))
                 {
                     continue;
                 }

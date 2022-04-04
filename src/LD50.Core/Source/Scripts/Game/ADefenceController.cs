@@ -48,7 +48,7 @@ namespace LD50.Core
             AddDefenceType(mines, 10);
             AddDefenceType(mortars, 5);
             AddDefenceType(missiles, 5);
-            AddDefenceType(nukes, 0);
+            AddDefenceType(nukes, 1);
 
             this.input.BindAction("primary.OnPressed", OnPressed);
             this.input.BindAction("1.OnPressed", (gt) => OnChangeAndOrderType(0, gt));

@@ -156,6 +156,12 @@
 /processorParam:Quality=Best
 /build:music.wav
 
+#begin nuke.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:nuke.wav
+
 #begin ordered.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor

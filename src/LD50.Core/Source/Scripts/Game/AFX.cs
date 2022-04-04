@@ -21,6 +21,7 @@ namespace LD50.Core
 
             textureAtlas = content.Load<Texture2D>("DefencesAtlas");
             sprites.AddSpriteAnimation("explosion", 16, 16, textureAtlas, new Rectangle(0, 352, 32, 32), false, 16);
+            sprites.AddSpriteAnimation("nuke", 16, 16, textureAtlas, new Rectangle(0, 352, 32, 32), false, 8);
             this.audio = audio;
         }
 
