@@ -8,7 +8,7 @@
   <PropertyGroup>
     <ApplicationIcon>Icon.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <AssemblyName>GrimTide Delay the Inevitable</AssemblyName>
+    <AssemblyName>GrimTideDelaytheInevitable</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Icon.bmp" />
