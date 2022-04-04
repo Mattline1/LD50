@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace LD50.Core
@@ -17,6 +18,8 @@ namespace LD50.Core
 
         public EventHandler<EventArgs> OnFailState { get; internal set; }
         private bool bHasFailed = false;
+
+        public static Stopwatch stopWatch = new Stopwatch();
 
         public ALevel(Game1 game, UAudio audio, UInput input, UView3D view3D, UStatistics statistics, int gridSize = 60)
         {
@@ -40,6 +43,8 @@ namespace LD50.Core
             game.Window.ClientSizeChanged += newEventhandler;
             eventHandlers.Add(newEventhandler);
             this.game = game;
+
+            stopWatch.Restart();
         }
 
         public void ForceFailState(GameTime gameTime)
@@ -59,10 +64,13 @@ namespace LD50.Core
         {
             if (defences.PollFailState() && !bHasFailed)
             {
+                stopWatch.Stop();
+
                 AFactory.Resource = 0;
                 threatField.DoEndGame();
                 OnFailState.Invoke(this, new EventArgs());
                 bHasFailed = true;
+
             }
 
             threatField.Update(gameTime);

@@ -15,7 +15,8 @@ namespace LD50.Core
 
         public static List<AMissiles> internalStaticMissileList = new List<AMissiles>();
 
-        public AMissiles(ContentManager content, AFX fx, AThreatField threatfield, UAudio audio, UView3D view3D, bool bAreEvil) : base(content, fx, threatfield, audio, 1)
+        public AMissiles(ContentManager content, AFX fx, AThreatField threatfield, UAudio audio, UView3D view3D, double order, double cost, double delay, bool bAreEvil)
+            : base(content, fx, threatfield, audio, order, cost, delay)
         {
             defaultAnimation = "Target";
             defaultSpriteSize = 0.7f;
@@ -30,7 +31,6 @@ namespace LD50.Core
         public override void AddDefence(Vector3 destination, GameTime gameTime, Vector3 origin)
         {
             base.AddDefence(destination, gameTime, origin);
-            //transforms.positions[transforms.Count - 1] = origin;
         }
 
         public float GetCurrentDistanceToTarget(int i, GameTime gameTime)
@@ -66,9 +66,12 @@ namespace LD50.Core
             if (bAreEvil)
             {
                 FIntVector2 gridcoords = GetGridCoords(destinations[i]);
-                RemoveDefence(i);
                 threatfield.SetSource(gridcoords.x, gridcoords.y, true);
-                //audio.PlaySingle("explosion");
+
+                RemoveDefence(i);
+
+                //fx.AddFX("explosion", transforms.positions[i]);
+
                 return true;
             }
             else
@@ -87,7 +90,7 @@ namespace LD50.Core
             return sprites.Draw2D(view3D, spriteBatch, gameTime);
         }
 
-        public static void CheckCollisions(AMissiles A, AMissiles B, float radius, GameTime gameTime)
+        public static void CheckCollisions(AMissiles A, AMissiles B, float radius, AFX fx, GameTime gameTime)
         {
             radius *= radius;
 
@@ -103,6 +106,9 @@ namespace LD50.Core
 
                     if (Vector3.DistanceSquared(posA, posB) < radius)
                     {
+                        fx.AddFX("explosion", posA);
+                        fx.AddFX("explosion", posB);
+
                         A.RemoveDefence(iA);
                         B.RemoveDefence(iB);
                         iA--;
@@ -120,7 +126,7 @@ namespace LD50.Core
 
             if (internalStaticMissileList.Count > 1)
             {
-                CheckCollisions(internalStaticMissileList[0], internalStaticMissileList[1], 1, gameTime);
+                CheckCollisions(internalStaticMissileList[0], internalStaticMissileList[1], 1, fx, gameTime);
             }
 
             while (i < destinations.Count)

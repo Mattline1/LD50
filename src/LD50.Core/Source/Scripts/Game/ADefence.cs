@@ -8,7 +8,7 @@ namespace LD50.Core
 {
     public class ADefence : IScript
     {
-        private readonly AFX fx;
+        protected readonly AFX fx;
         protected readonly AThreatField threatfield;
         protected readonly UAudio audio;
         protected ATransform2D    transforms;
@@ -31,12 +31,17 @@ namespace LD50.Core
 
         public int Count => transforms.Count;
 
-        public ADefence(ContentManager content, AFX fx, AThreatField threatfield, UAudio audio, double delayTime)
+        public ADefence(ContentManager content, AFX fx, AThreatField threatfield, UAudio audio, double order, double cost, double delay)
         {
-            this.delayTime = delayTime;
             this.fx = fx;
             this.threatfield = threatfield;
             this.audio = audio;
+
+            // balance vals
+            delayTime = delay;
+            Cost = cost;
+            OrderTime = order;
+
             transforms  = new ATransform2D();
             sprites     = new ASprites(content, transforms);
 
@@ -51,11 +56,13 @@ namespace LD50.Core
         {
             if (!destinations.Contains(destination))
             {
+                destination = GetGridCoords(destination).AsVector3();
+
                 destinations.Add(destination);
                 origins.Add(origin);
                 timestamps.Add(gameTime.TotalGameTime.TotalSeconds);
                 
-                transforms.Add(0, GetGridCoords(destination).AsVector3());
+                transforms.Add(0, destination);
                 int i = sprites.AddSprite(defaultAnimation, defaultSpriteSize);
                 sprites.SetColor(i, defaultColor);
             }
@@ -63,9 +70,12 @@ namespace LD50.Core
 
         public virtual bool TriggerDefence(int i, int radius, GameTime gameTime)
         {
+            fx.AddFX("explosion", transforms.positions[i]);
+
             FIntVector2 gridcoords = GetGridCoords(destinations[i]);
-            RemoveDefence(i);
             threatfield.SetMagnitudeInRadius(gridcoords.x, gridcoords.y, radius, 0);
+
+            RemoveDefence(i);
             return true;
         }
 
@@ -79,8 +89,6 @@ namespace LD50.Core
 
         public void RemoveDefence(int i)
         {
-            fx.AddFX("explosion", transforms.positions[i]);
-
             destinations.RemoveAt(i);
             origins.RemoveAt(i);
             timestamps.RemoveAt(i);
@@ -130,11 +138,12 @@ namespace LD50.Core
             float maxLength = float.MaxValue;
             Vector3 toReturn = Vector3.Zero;
 
-            foreach (var origin in transforms.positions)
+            foreach (var position in transforms.positions)
             {
-                if ((origin - destination).LengthSquared() < maxLength)
+                if (Vector3.Distance(position, destination) < maxLength)
                 {
-                    toReturn = origin;
+                    toReturn = position;
+                    maxLength = Vector3.Distance(position, destination);
                 }
             }
 

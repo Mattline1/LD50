@@ -5,7 +5,8 @@ namespace LD50.Core
 {
     public class AMines : ADefence
     {
-        public AMines(ContentManager content, AFX fx, AThreatField threatfield, UAudio audio) : base(content, fx, threatfield, audio, 2) {}
+        public AMines(ContentManager content, AFX fx, AThreatField threatfield, UAudio audio, double order, double cost, double delay)
+            : base(content, fx, threatfield, audio, order, cost, delay) {}
 
         public override bool TriggerDefence(int i, int radius, GameTime gameTime)
         {

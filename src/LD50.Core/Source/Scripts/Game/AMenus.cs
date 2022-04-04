@@ -74,7 +74,9 @@ namespace LD50.Core
             messages.Add("Do you think the insurance will cover this?");
 
             Random rand = new Random();
-            canvases[3].widgets.texts[2] = messages[rand.Next(messages.Count)];
+            string message = messages[rand.Next(messages.Count)];
+            TimeSpan time = ALevel.stopWatch.Elapsed;
+            canvases[3].widgets.texts[2] = string.Format("{0}\nYou survived for: {1}h {2}m {3}s", message, time.Hours, time.Minutes, time.Seconds);
         }
 
         public int Draw(UView3D view3D, GameTime gameTime)

@@ -30,7 +30,7 @@
       128 192 128 32
       0 0 0 0
     </sources>
-    <colors>FFB6B2A5 FFB6B2A5 FFB6B2A5</colors>
+    <colors>FFB6B2A5 FFB6B2A5 FFfafafa</colors>
     <highlightcolors>FFfafafa FFfafafa FFfafafa</highlightcolors>
     <widgetTypes>
       <Item>button</Item>

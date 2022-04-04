@@ -38,11 +38,11 @@ namespace LD50.Core
 
             canvas = new ACanvas(content, graphics, this.input, content.Load<FCanvas>("GUI2"));
 
-            AFactory factories  = new AFactory(content, fx, threatfield, audio, 1);
-            AMines  mines       = new AMines(content, fx, threatfield, audio);
-            AMortar mortars     = new AMortar(content, fx, threatfield, audio, 2, 3);
-            AMissiles missiles  = new AMissiles(content, fx, threatfield, audio, view3D, false);
-            AMortar nukes       = new AMortar(content, fx, threatfield, audio, 6, 20);
+            AFactory factories  = new AFactory(content, fx, threatfield, audio,             10.0, 50.0, 0.0);
+            AMines  mines       = new AMines(content, fx, threatfield, audio,               2.0, 2.0, 2.0);
+            AMortar mortars     = new AMortar(content, fx, threatfield, audio,              3.0, 8.0, 2.0, 2);
+            AMissiles missiles  = new AMissiles(content, fx, threatfield, audio, view3D,    3.0, 15.0, 0.0, false);
+            AMortar nukes       = new AMortar(content, fx, threatfield, audio,              15.0, 100.0, 15.0, 6);
 
             AddDefenceType(factories, 1);
             AddDefenceType(mines, 10);

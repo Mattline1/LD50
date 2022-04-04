@@ -63,11 +63,11 @@ namespace LD50.Core
 
         private Random rnd = new Random();
 
-        private float creepVirality  = 50;
+        private float creepVirality  = 100;
         private float creepDiffusion = 200;
 
         protected float missileTempo = 20.0f;
-        protected float lastMissileTimeStamp = -20.0f;
+        protected double lastMissileTimeStamp = -20.0f;
         protected AMissiles missiles;
 
 
@@ -87,7 +87,7 @@ namespace LD50.Core
             creepnoise.IsLooped = true;
             creepnoise.Volume = 0.0f;
 
-            missiles = new AMissiles(content, fx, this, audio, view3D, true);
+            missiles = new AMissiles(content, fx, this, audio, view3D, 0.0, 0.0, 0.0, true);
             missiles.defaultColor = Color.Red;
 
             for (int h = 0; h < height; h++)
@@ -98,7 +98,7 @@ namespace LD50.Core
                     int i = sprites.AddSprite();
                     sprites.Play(i, "Square", rnd.Next(0, 16), true);
 
-                    bool source = (MathF.Abs(width / 2 - w) > 10 || MathF.Abs(height / 2 - h) > 10) && rnd.Next(0, 30) == 5;
+                    bool source = (MathF.Abs(width / 2 - w) > 20 || MathF.Abs(height / 2 - h) > 20) && rnd.Next(0, 100) == 5;
                     bool resource = rnd.Next(0, 100) == 5;
                     fieldA.Add(rnd, source, resource);
                     fieldB.Add(rnd, source, resource);
@@ -260,6 +260,7 @@ namespace LD50.Core
             int i = Get1DIndex(x, y);
             if (IsValidIndex(i))
             {
+                SetMagnitude(x, y, isSource ? 255.0f : 0.0f);
                 fieldA.bIsSource[i] = isSource;
                 fieldB.bIsSource[i] = isSource;
             }
@@ -303,11 +304,26 @@ namespace LD50.Core
                 sprites.SetColor(i, Color.Lerp(Color.White, Color.Red, m / 255.0f));
 
                 if (readField.bIsSource[i] 
-                    && gametime.TotalGameTime.Seconds - lastMissileTimeStamp > missileTempo &&
+                    && gametime.TotalGameTime.TotalSeconds - lastMissileTimeStamp > missileTempo &&
                     rnd.Next(0, 100) == 50)
                 {
-                    missiles.AddDefence(Get2DIndex(rnd.Next(0, width * height)).AsVector3(), gametime, Get2DIndex(i).AsVector3());
-                    lastMissileTimeStamp = gametime.TotalGameTime.Seconds;
+                    int target  = -1;
+                    int iter    = 0;
+                    while (!IsValidIndex(target) && iter < 100)
+                    {
+                        target = rnd.Next(0, width * height);
+                        if (readField.magnitude[target] > 50)
+                        {
+                            target = -1;
+                        }
+                        iter++;
+                    }
+
+                    if (IsValidIndex(target))
+                    {
+                        missiles.AddDefence(Get2DIndex(target).AsVector3(), gametime, Get2DIndex(i).AsVector3());
+                        lastMissileTimeStamp = gametime.TotalGameTime.TotalSeconds;
+                    }
                 }
 
                 if (readField.bIsResource[i])
