@@ -27,6 +27,8 @@ namespace LD50.Core
         private List<int> orders                = new List<int>();
         private List<double> orderTimeStamps    = new List<double>();
 
+        private Color uiColor;
+
         public ADefenceController(ContentManager content, GraphicsDevice graphics, AFX fx, AThreatField threatfield, UInput input, UAudio audio, UView3D view3D, UStatistics statistics)
         {
             this.fx = fx;
@@ -48,7 +50,11 @@ namespace LD50.Core
             AddDefenceType(mines, 10);
             AddDefenceType(mortars, 5);
             AddDefenceType(missiles, 5);
-            AddDefenceType(nukes, 1);
+            AddDefenceType(nukes, 0);
+
+            activeDefence = 1;
+            uiColor = canvas.widgets.colors[0];
+            canvas.widgets.colors[activeDefence * 2] = Color.LightGreen;
 
             this.input.BindAction("primary.OnPressed", OnPressed);
             this.input.BindAction("1.OnPressed", (gt) => OnChangeAndOrderType(0, gt));
@@ -109,7 +115,9 @@ namespace LD50.Core
         private void OnChangeType(int index, GameTime gameTime)
         {
             audio.PlaySingle("chirp");
+            canvas.widgets.colors[activeDefence * 2] = uiColor;
             activeDefence = index;
+            canvas.widgets.colors[activeDefence * 2] = Color.LightGreen;
         }
 
         private void OnChangeAndOrderType(int index, GameTime gameTime)
